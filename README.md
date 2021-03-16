@@ -19,4 +19,4 @@
       }
    ```
    
-    * /delete?id=iduser                   "Deletar usuário"
+   * /delete?id=iduser                   "Deletar usuário"
