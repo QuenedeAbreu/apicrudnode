@@ -16,7 +16,7 @@
       "email":"fulano@gmail.com"
     }
 
-    * /delete                   "Deletar usuário"
-        ** {
-      "id":"a8dfa56d-b2a7-4fcd-a766-d7af874ba3a1"
-    }
+    > /delete                   "Deletar usuário"
+        >> {
+      >>"id":"a8dfa56d-b2a7-4fcd-a766-d7af874ba3a1"
+      >>}
