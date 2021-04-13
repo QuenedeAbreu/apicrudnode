@@ -1,5 +1,5 @@
 const controller = {}
-var Usuario = require('../models/usuario');
+var nivelAcesso = require('../models/nivelAcesso');
 const uuid = require('uuidv4');
 const { Op } = require('sequelize');
 
@@ -13,9 +13,9 @@ controller.index = (req, res) => {
   res.json(data);
 }
 
-controller.listUser = async (req, res) => {
+controller.listNivelAcesso = async (req, res) => {
   try {
-    const response = await Usuario.findAll()
+    const response = await nivelAcesso.findAll()
       .then(function (data) {
         const res = { success: true, message: 'Load Success', data }
 
@@ -33,15 +33,15 @@ controller.listUser = async (req, res) => {
   }
 }
 
-controller.listUserOne = async (req, res) => {
-  const id = req.query.id;
+controller.listNivelAcessoOne = async (req, res) => {
+  const id = req.params.id;
   if (!id) {
     const response = { "success": "false", "message": "error" }
     return res.json(response);
   } else {
 
     try {
-      const response = await Usuario.findByPk(id)
+      const response = await nivelAcesso.findByPk(id)
         .then(function (data) {
           const res = { success: true, message: 'Load Success', data }
 
@@ -61,17 +61,17 @@ controller.listUserOne = async (req, res) => {
 }
 
 
-controller.listUserOneName = async (req, res) => {
-  const name = req.query.name;
+controller.listNivelAcessOneName = async (req, res) => {
+  const name = req.params.titleacesso;
   if (!name) {
     const response = { "success": "false", "message": "error" }
     return res.json(response);
   } else {
 
     try {
-      const response = await Usuario.findAll({
+      const response = await nivelAcesso.findAll({
         where:{
-          name:{
+          title_acesso:{
             [Op.like]:"%"+name+"%"
           }
         }
@@ -95,16 +95,19 @@ controller.listUserOneName = async (req, res) => {
 }
 
 
-controller.creatUser = async (req, res) => {
-  // const teste = req.body;
+controller.createNivelAcesso = async (req, res) => {
 
-  // return res.json(teste);
 
+  const nivelacesso = await nivelAcesso.findOne({ where: { title_acesso: req.body.title_acesso } });
+  if(nivelacesso){
+    res.status(400).json({message: 'O nivel de acesso já existe'})
+  }else{
+  
   try {
-    const response = await Usuario.create({
+    const response = await nivelAcesso.create({
       id: uuid.uuid(),
-      name: req.body.name,
-      email: req.body.email,
+      title_acesso: req.body.title_acesso,
+      tipo_acesso: req.body.tipo_acesso,
 
     })
       .then(function (data) {
@@ -123,13 +126,15 @@ controller.creatUser = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+  }
 }
 
-controller.updateUser = async (req, res) => {
+controller.updateNivelAcesso = async (req, res) => {
+ 
   try {
-    const response = await Usuario.update({
-      name: req.body.name,
-      email: req.body.email
+    const response = await nivelAcesso.update({
+      title_acesso: req.body.title_acesso,
+      tipo_acesso: req.body.tipo_acesso,
     }, {
       where: { id:  req.body.id }
     })
@@ -139,6 +144,7 @@ controller.updateUser = async (req, res) => {
           const res = {
             success: true,
             message: "Atualizado com sucesso",
+            
           }
           return res;
         }else{
@@ -162,11 +168,11 @@ controller.updateUser = async (req, res) => {
   }
 
 }
-controller.deleteUser = async (req, res) => {
-
+controller.deleteNivelacesso = async (req, res) => {
+ 
   try {
-    const response = await Usuario.destroy({
-      where: { id: req.query.id }
+    const response = await nivelAcesso.destroy({
+      where: { id: req.params.id}
     })
     .then( function(data){
       const res = { success: true, data: data, message:"Deleted successful" }

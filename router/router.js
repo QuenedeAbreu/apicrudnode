@@ -1,13 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('../controller/controller');
+const controller = require('../controller/controllerNivelAcesso');
 
-router.get('/user',controller.listUser);
-router.get('/userlistid',controller.listUserOne);
-router.get('/userlistname',controller.listUserOneName);
-router.post('/createusuario',controller.creatUser);
-router.put('/userupdate',controller.updateUser);
-router.delete('/delete',controller.deleteUser);
+router.get('/nivelacesso',controller.listNivelAcesso);
+router.post('/createNivelAcesso',controller.createNivelAcesso);
+
+
+router.get('/listidnivelacesso/:id',controller.listNivelAcessoOne);
+router.get('/listnamenivelacesso/:titleacesso',controller.listNivelAcessOneName);
+
+router.put('/updatenivelacesso',controller.updateNivelAcesso);
+router.delete('/deletenivelacesso/:id',controller.deleteNivelacesso);
 
 
 
