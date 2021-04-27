@@ -1,19 +1,10 @@
-const controller = {}
-var nivelAcesso = require('../models/nivelAcesso');
+
+const nivelAcesso = require('../models/nivelAcesso');
 const uuid = require('uuidv4');
 const { Op } = require('sequelize');
 
 
-controller.index = (req, res) => {
-  const data = {
-    name: "Quenede abreu",
-    age: 20,
-    cyte: "Rio Brnaco"
-  }
-  res.json(data);
-}
-
-controller.listNivelAcesso = async (req, res) => {
+exports.listNivelAcesso = async (req, res) => {
   try {
     const response = await nivelAcesso.findAll()
       .then(function (data) {
@@ -23,6 +14,7 @@ controller.listNivelAcesso = async (req, res) => {
       })
       .catch(error => {
         const res = { success: false, message: error }
+        return res; 
       })
 
     return res.json(response);
@@ -30,39 +22,48 @@ controller.listNivelAcesso = async (req, res) => {
   } catch (error) {
     console.log('Error controler.list');
     console.log(error);
+    return res.json(error);
   }
 }
 
-controller.listNivelAcessoOne = async (req, res) => {
-  const id = req.params.id;
-  if (!id) {
+exports.listNivelAcessoOne = async (req, res) => {
+  const idNivelAcessoParams = req.params.id;
+
+  if (!idNivelAcessoParams) {
     const response = { "success": "false", "message": "error" }
     return res.json(response);
   } else {
 
     try {
-      const response = await nivelAcesso.findByPk(id)
+      const response = await nivelAcesso.findByPk(idNivelAcessoParams)
         .then(function (data) {
-          const res = { success: true, message: 'Load Success', data }
-
-          return res;
+          if(data){
+            const res = { success: true, message: 'Load Success', data }
+            return res;
+          }else{
+            const res = { success: true, message: 'Load Success', data:'Não existe nível de acesso com esse id.' }
+            return res;
+          }
         })
         .catch(error => {
           const res = { success: false, message: error }
+          return res;
         })
 
       return res.json(response);
 
     } catch (error) {
-      console.log('Error controler.list');
+      console.log('Error controler.list NivelAcessoOne');
       console.log(error);
+      res.json(error)
     }
   }
 }
 
 
-controller.listNivelAcessOneName = async (req, res) => {
+exports.listNivelAcessOneName = async (req, res) => {
   const name = req.params.titleacesso;
+  
   if (!name) {
     const response = { "success": "false", "message": "error" }
     return res.json(response);
@@ -90,15 +91,18 @@ controller.listNivelAcessOneName = async (req, res) => {
     } catch (error) {
       console.log('Error controler.list');
       console.log(error);
+      res.json(error)
     }
   }
 }
 
 
-controller.createNivelAcesso = async (req, res) => {
+exports.createNivelAcesso = async (req, res) => {
+  const titleAcesso = req.body.title_acesso;
+  const tipo_acesso = req.body.tipo_acesso;
 
+  const nivelacesso = await nivelAcesso.findOne({ where: { title_acesso:  titleAcesso} });
 
-  const nivelacesso = await nivelAcesso.findOne({ where: { title_acesso: req.body.title_acesso } });
   if(nivelacesso){
     res.status(400).json({message: 'O nivel de acesso já existe'})
   }else{
@@ -106,14 +110,14 @@ controller.createNivelAcesso = async (req, res) => {
   try {
     const response = await nivelAcesso.create({
       id: uuid.uuid(),
-      title_acesso: req.body.title_acesso,
-      tipo_acesso: req.body.tipo_acesso,
+      title_acesso: titleAcesso,
+      tipo_acesso: tipo_acesso,
 
     })
       .then(function (data) {
         const res = {
           success: true,
-          message: "Usuario criado com sucesso",
+          message: "Nível de acesso criado com sucesso",
           data: data
         }
         return res;
@@ -125,32 +129,40 @@ controller.createNivelAcesso = async (req, res) => {
     res.json(response);
   } catch (error) {
     console.log(error);
+    res.json(error);
   }
   }
 }
 
-controller.updateNivelAcesso = async (req, res) => {
+exports.updateNivelAcesso = async (req, res) => {
+ const idNivelAcessoParams = req.params.id;
+
+ const titleAcesso = req.body.title_acesso;
+ const tipo_acesso = req.body.tipo_acesso;
  
   try {
     const response = await nivelAcesso.update({
-      title_acesso: req.body.title_acesso,
-      tipo_acesso: req.body.tipo_acesso,
+      title_acesso: titleAcesso,
+      tipo_acesso: tipo_acesso,
+     
     }, {
-      where: { id:  req.body.id }
+      where: { id: idNivelAcessoParams  }
     })
-      .then(function (data) {
+      .then(async function (data) {
+      const responsenivelacesso = await nivelAcesso.findByPk(idNivelAcessoParams)
         const re = data[0];
         if(re > 0){
           const res = {
             success: true,
-            message: "Atualizado com sucesso",
-            
+            message: "Nível de acesso atualizado com sucesso",
+            data:responsenivelacesso
           }
           return res;
         }else{
+          console.log(data);
           const res = { 
             success: false, 
-            message: "error ao atualizar" 
+            message: "Error ao atualizar" 
           }
           return res;
         }
@@ -158,7 +170,7 @@ controller.updateNivelAcesso = async (req, res) => {
       .catch((error) => {
         const res = { 
           success: false, 
-          message: "error ao atualizar" 
+          message: "Error ao atualizar" 
         }
         return res;
       })
@@ -168,14 +180,14 @@ controller.updateNivelAcesso = async (req, res) => {
   }
 
 }
-controller.deleteNivelacesso = async (req, res) => {
- 
+exports.deleteNivelacesso = async (req, res) => {
+  const idNivelAcessoParams = req.params.id;
   try {
     const response = await nivelAcesso.destroy({
-      where: { id: req.params.id}
+      where: { id: idNivelAcessoParams}
     })
     .then( function(data){
-      const res = { success: true, data: data, message:"Deleted successful" }
+      const res = { success: true, data: data, message:"Nível de acesso deletado com sucesso." }
       return res;
     })
     .catch(error => {
@@ -184,10 +196,9 @@ controller.deleteNivelacesso = async (req, res) => {
     })
     res.json(response);
 
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    res.json(error);
+    console.log(error);
   }
 }
 
-
-module.exports = controller;

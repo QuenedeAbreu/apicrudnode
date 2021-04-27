@@ -9,11 +9,9 @@ const Cargo = sequelize.define('cargos',{
     defaultValue: Sequelize.UUIDV4,
     primaryKey: true
   },
-  name: Sequelize.STRING,
+  nome_cargo: Sequelize.STRING,
   descricao:Sequelize.STRING,
 });
-
-
 
 NivelAcesso.hasMany(Cargo,{
   onDelete: 'CASCADE',
